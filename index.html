@@ -21,15 +21,15 @@
           </div>
           <div class="box controle">
             <span>Devoir de conrtole</span>
-            <input id="controle" type="number" />
+            <input min="0" max="20" id="controle" type="number" />
           </div>
           <div class="box oral">
             <span id="oralLabel">Oral</span>
-            <input id="oral" type="number" />
+            <input min="0" max="20" id="oral" type="number" />
           </div>
           <div class="box synthese">
             <span>devoir de synthese</span>
-            <input id="synthese" type="number" />
+            <input min="0" max="20" id="synthese" type="number" />
           </div>
           <div class="button-container">
             <button class="prev-btn">
@@ -43,6 +43,24 @@
         </article>
       </section>
       <h1 id="average"></h1>
+      <table id="subjectTable">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Average</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <table id="ScoreTable">
+        <thead>
+          <tr>
+            <th>Num</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </main>
     <script src="script.js"></script>
   </body>

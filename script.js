@@ -1,16 +1,26 @@
-function Subject(subject, dvrConDis, dvrOralDis, somme) {
+function Subject(subject, dvrConDis, dvrOralDis, somme, multiplier) {
   this.subject = subject;
   this.dvrConDis = dvrConDis;
   this.dvrOralDis = dvrOralDis;
   this.somme = somme;
   this.score = { controle: 0, synthese: 0, oral: 0 };
   this.average = 0;
+  this.multiplier = multiplier;
 }
 
 const mat = [
-  new Subject("Francais", "visible", "visible", 4),
-  new Subject("Math", "visible", "hidden", 3),
-  new Subject("Physique", "visible", "visible", 4),
+  new Subject("Francais", "visible", "visible", 4, 2),
+  new Subject("Philo", "hidden", "hidden", 2, 1),
+  new Subject("English", "visible", "visible", 4, 2),
+  new Subject("Arab", "visible", "visible", 4, 1),
+  new Subject("Option", "visible", "visible", 4, 1),
+  new Subject("Histoire", "visible", "visible", 4, 1),
+  new Subject("Geo", "visible", "visible", 4, 1),
+  new Subject("Prog", "visible", "visible", 4, 3),
+  new Subject("STI", "visible", "visible", 4, 3),
+  new Subject("Math", "visible", "hidden", 3, 3),
+  new Subject("Physique", "visible", "visible", 4, 3),
+  new Subject("Sport", "visible", "hidden", 3, 1),
 ];
 
 const next = document.querySelector(".next-btn");
@@ -24,13 +34,15 @@ const syntheseInput = document.getElementById("synthese");
 const oralInput = document.getElementById("oral");
 const oralLabel = document.getElementById("oralLabel");
 const controleInput = document.getElementById("controle");
+const table = document.querySelector("#subjectTable");
+const sctable = document.querySelector("#ScoreTable");
 
 averageDisplay.textContent = "Moyen: 0.00 ";
 prev.classList.add("hidden");
 
 let num = 0;
-let scores = [];
 let clicker = false;
+let scores = [];
 
 function show(num) {
   let sub = mat[num];
@@ -39,7 +51,11 @@ function show(num) {
   oral.classList.remove("visible", "hidden");
   contrle.classList.add(sub.dvrConDis);
   oral.classList.add(sub.dvrOralDis);
-  if (sub.subject == "Physique") {
+  if (
+    sub.subject == "Physique" ||
+    sub.subject == "Prog" ||
+    sub.subject == "STI"
+  ) {
     oralLabel.textContent = "Tp:";
   } else {
     oralLabel.textContent = "Oral:";
@@ -63,8 +79,11 @@ function update(x) {
   syntheseInput.value = oralInput.value = controleInput.value = "";
 }
 
-function moy(oral, cont, syne, quo) {
-  return ((oral + cont + syne * 2) / quo).toFixed(2);
+function moy(sub) {
+  return (
+    (sub.score.oral + sub.score.controle + sub.score.synthese * 2) /
+    sub.somme
+  ).toFixed(2);
 }
 
 function realTime(x) {
@@ -77,26 +96,17 @@ function realTime(x) {
   sub.score.oral = oralDvr;
   sub.score.synthese = syn;
 
-  sub.average = moy(
-    sub.score.oral,
-    sub.score.controle,
-    sub.score.synthese,
-    sub.somme
-  );
+  sub.average = moy(sub);
   averageDisplay.textContent = `Moyen: ${sub.average || "0.00"}`;
 }
+
 next.addEventListener("click", function () {
   let sub = mat[num];
   update(num);
-  let gen = moy(
-    sub.score.oral,
-    sub.score.controle,
-    sub.score.synthese,
-    sub.somme
-  );
-  scores.push(gen);
-  clicker = false;
+  sub.average = moy(sub);
 
+  clicker = false;
+  console.log(mat[num]);
   num++;
   if (num >= mat.length - 1) {
     next.classList.add("hidden");
@@ -104,7 +114,6 @@ next.addEventListener("click", function () {
   }
   prev.disabled = false;
   prev.classList.remove("hidden");
-  console.log(scores);
   averageDisplay.textContent = "Moyen: 0.00";
   show(num);
 });
@@ -115,18 +124,18 @@ prev.addEventListener("click", function () {
   if (num <= 0) {
     prev.classList.add("hidden");
   }
-  scores.pop();
   mat[num].average = 0;
-  console.log(scores);
   calc.classList.remove("visible");
   next.classList.remove("hidden");
   averageDisplay.textContent = "Moyen: 0.00";
+  console.log(mat[num]);
   show(num);
 });
 
 [syntheseInput, oralInput, controleInput].forEach((input) => {
   input.addEventListener("input", function () {
     realTime(num);
+    clicker = false;
   });
 });
 
@@ -135,20 +144,38 @@ calc.addEventListener("click", function () {
     clicker = true;
     let sub = mat[mat.length - 1];
     update(mat.length - 1);
-    let gen = moy(
-      sub.score.oral,
-      sub.score.controle,
-      sub.score.synthese,
-      sub.somme
-    );
-    scores.push(gen);
-    console.log(scores);
-    let res = 0;
-    for (let i = 0; i < scores.length; i++) {
-      res += parseFloat(scores[i]);
-    }
-    res = res / 3;
+    sub.average = moy(sub);
+    let res =
+      mat.reduce(
+        (acc, sub) => acc + parseFloat(sub.average) * sub.multiplier,
+        0
+      ) / 22;
     averageDisplay.textContent = `Moyen: ${res.toFixed(2)}`;
+    scores.push(res.toFixed(2));
     console.log(mat);
+    console.log(scores);
+    tableApp();
+    tableScore();
   }
 });
+
+function tableApp() {
+  mat.forEach((sub) => {
+    const row = table.insertRow();
+    const cellSubject = row.insertCell(0);
+    const cellScore = row.insertCell(1);
+
+    cellSubject.textContent = sub.subject;
+    cellScore.textContent = sub.average || "0.00";
+  });
+}
+
+function tableScore() {
+  let inc = 0;
+  ++inc;
+  const row = sctable.insertRow();
+  const colIn = row.insertCell(0);
+  const cellScore = row.insertCell(1);
+  colIn.textContent = inc;
+  cellScore.textContent = scores[scores.length - 1];
+}
