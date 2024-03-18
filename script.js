@@ -138,6 +138,7 @@ prev.addEventListener("click", function () {
     clicker = false;
   });
 });
+let i = localStorage.length;
 
 calc.addEventListener("click", function () {
   if (!clicker) {
@@ -152,6 +153,8 @@ calc.addEventListener("click", function () {
       ) / 22;
     averageDisplay.textContent = `Moyen: ${res.toFixed(2)}`;
     scores.push(res.toFixed(2));
+    i = localStorage.length + 1;
+    window.localStorage.setItem("score" + i, res.toFixed(2));
     console.log(mat);
     console.log(scores);
     tableApp();
@@ -159,9 +162,17 @@ calc.addEventListener("click", function () {
   }
 });
 
+function clearLastAverages() {
+  const rowCount = table.rows.length;
+  for (let i = rowCount - 1; i > 0; i--) {
+    table.deleteRow(i);
+  }
+}
+
 function tableApp() {
+  clearLastAverages();
   mat.forEach((sub) => {
-    const row = table.insertRow();
+    const row = table.insertRow(table.rows.length);
     const cellSubject = row.insertCell(0);
     const cellScore = row.insertCell(1);
 
@@ -170,12 +181,29 @@ function tableApp() {
   });
 }
 
+window.onload = function () {
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith("score")) {
+      const score = localStorage.getItem(key);
+      if (score) {
+        scores.push(score);
+      }
+    }
+  }
+  scores.forEach((score, index) => {
+    const row = sctable.insertRow();
+    const colNum = row.insertCell(0);
+    const colScore = row.insertCell(1);
+    colNum.textContent = index + 1;
+    colScore.textContent = score;
+  });
+};
+
 function tableScore() {
-  let inc = 0;
-  ++inc;
   const row = sctable.insertRow();
-  const colIn = row.insertCell(0);
-  const cellScore = row.insertCell(1);
-  colIn.textContent = inc;
-  cellScore.textContent = scores[scores.length - 1];
+  const colNum = row.insertCell(0);
+  const colScore = row.insertCell(1);
+  colNum.textContent = scores.length;
+  colScore.textContent = scores[scores.length - 1];
 }
